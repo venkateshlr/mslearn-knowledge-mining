@@ -1,0 +1,159 @@
+Skip to main content
+go deploy
+AI-102 | Module 5
+
+AI-102 | Module 5
+Home
+Lab Guide
+Microsoft Learn
+ Lab Guide
+Add to an index using the push API
+You want to explore how to create an Azure AI Search index and upload documents to that index using C# code.
+
+In this exercise, you'll clone an existing C# solution and run it to work out the optimal batch size to upload documents. You'll then use this batch size and upload documents effectively using a threaded approach.
+
+Set up your Azure resources
+To save you time, select this Azure Resource Manager template to create resources you'll need later in the exercise:
+
+Screenshot select this link to create an Azure Cognitive Search service.
+
+Screenshot
+
+In Resource group, select Create new, name it cog-search-language-exe.
+
+In Region, select a supported region that is close to you.
+
+The Resource Prefix needs to be globally unique, enter a random numeric and lower-case character prefix, for example, acs118245.
+
+In Location, select the same region you chose above.
+
+Select Review + create.
+
+Select Create.
+
+When deployment has finished, select Go to resource group to see all the resources that you've created.
+
+Screenshot
+
+Copy Azure AI Search service REST API information
+In the list of resources, select the search service you created. In the above example acs118245-search-service.
+
+Copy the search service name into a text file.
+
+Screenshot
+
+On the left, select Keys, then copy the Primary admin key into the same text file.
+
+Download example code
+Open your the Azure Cloud Shell by selecting the Cloud Shell button at the top of the Azure portal.
+
+Note: If you're prompted to create an Azure Storage account select Create storage.
+
+Once it has finished starting up, clone the following example code repository by running the following in your Cloud Shell:
+
+git clone https://github.com/Azure-Samples/azure-search-dotnet-scale.git samples
+Change into the newly created directory by running:
+
+cd samples
+Then run:
+
+code ./optimize-data-indexing/v11
+This opens the code editor inside Cloud Shell at the /optimize-data-indexing/v11 folder.
+
+Screenshot
+
+In the navigation on the left, expand the OptimizeDataIndexing folder, then select the appsettings.json file.
+
+Screenshot
+
+Paste in your search service name and primary admin key.
+
+{
+  "SearchServiceUri": "https://acs118245-search-service.search.windows.net",
+  "SearchServiceAdminApiKey": "YOUR_SEARCH_SERVICE_KEY",
+  "SearchIndexName": "optimize-indexing"
+}
+The settings file should look similar to the above.
+
+Save your change by pressing CTRL + S.
+
+Select the OptimizeDataIndexing.csproj file.
+On the fifth line, change <TargetFramework>netcoreapp3.1</TargetFramework> to <TargetFramework>net7.0</TargetFramework>.
+Save your change by pressing CTRL + S.
+In the terminal, enter cd ./optimize-data-indexing/v11/OptimizeDataIndexing then press Enter to change into the correct directory.
+
+Select the Program.cs file. Then, in the terminal, enter dotnet run and press Enter.
+
+Screenshot
+
+The output shows that in this case, the best performing batch size is 900 documents. As it reaches 3.688 MB per second.
+
+Edit the code to implement threading and a backoff and retry strategy
+There's code commented out that's ready to change the app to use threads to upload documents to the search index.
+
+Make sure you've selected Program.cs.
+
+Screenshot
+
+Comment out lines 38 and 39 like this:
+
+//Console.WriteLine("{0}", "Finding optimal batch size...\n");
+//await TestBatchSizesAsync(searchClient, numTries: 3);
+Uncomment lines 41 to 49.
+
+long numDocuments = 100000;
+DataGenerator dg = new DataGenerator();
+List<Hotel> hotels = dg.GetHotels(numDocuments, "large");
+
+Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
+await ExponentialBackoff.IndexDataAsync(searchClient, hotels, 1000, 8);
+
+Console.WriteLine("{0}", "Validating all data was indexed...\n");
+await ValidateIndexAsync(indexClient, indexName, numDocuments);
+The code that controls the batch size and number of threads is await ExponentialBackoff.IndexDataAsync(searchClient, hotels, 1000, 8). The batch size is 1000 and the threads are eight.
+
+Screenshot
+
+Save your changes, press CTRL+S.
+
+Select your terminal, then press any key to end the running process if you haven't already.
+
+Run dotnet run in the terminal.
+
+Screenshot
+
+The app will start eight threads, and then as each thread finishes writing a new message to the console:
+
+Finished a thread, kicking off another...
+Sending a batch of 1000 docs starting with doc 57000...
+After 100,000 documents are uploaded, the app writes a summary (this might take a while to complete):
+
+Ended at: 9/1/2023 3:25:36 PM
+
+Upload time total: 00:01:18:0220862
+Upload time per batch: 780.2209 ms
+Upload time per document: 0.7802 ms
+
+Validating all data was indexed...
+
+Waiting for service statistics to update...
+
+Document Count is 100000
+
+Waiting for service statistics to update...
+
+Index Statistics: Document Count is 100000
+Index Statistics: Storage Size is 71453102
+
+Explore the code in the TestBatchSizesAsync procedure to see how the code tests the batch size performance.
+
+Explore the code in the IndexDataAsync procedure to see how the code manages threading.
+
+Explore the code in the ExponentialBackoffAsync to see how the code implements an exponential backoff retry strategy.
+
+You can search and verify that the documents have been added to the index in the Azure portal.
+
+Screenshot
+
+ 07:23:027 hours and 23 minutes remaining on your lab session
+Keyboard released from VM

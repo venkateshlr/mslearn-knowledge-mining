@@ -1,0 +1,101 @@
+Skip to main content
+go deploy
+AI-102 | Module 5
+
+AI-102 | Module 5
+Home
+Lab Guide
+Microsoft Learn
+ Lab Guide
+Set up semantic search
+In this exercise, you will add semantic search to an index and use semantic search for a query.
+
+Enable semantic search
+Open the Azure portal and sign in.
+
+Select All resources and select your search service.
+
+In the navigation pane, select Semantic search (preview).
+
+In Availability, in the Free option, select Select Plan.
+
+Screenshot
+
+Import a sample index
+From the Azure portal home page, select All resources and select your search service.
+
+Select Import data.
+
+Screenshot
+
+In Data Source, select Samples.
+
+Select hotels-sample and select Next: Add cognitive skills (Optional).
+
+Select Skip to: Customize target index.
+
+Select Next: Create an indexer.
+
+Select Submit.
+
+Configure semantic ranking
+Once you have a search index and semantic search enabled, you can configure semantic ranking. You require a search client that supports preview APIs on the query request. You could use Search explorer in the Azure portal, the Postman app, the Azure SDK for .NET, or the Azure SDK for Python. In this exercise, you will use Search explorer in the Azure portal.
+
+To configure semantic ranking, follow these steps:
+
+From the Azure portal home page, select All resources and select your search service.
+
+On the navigation bar, in Search management, select Indexes.
+
+Screenshot
+
+Select your index.
+
+Select Semantic configurations and select Add semantic configuration.
+
+In Name type hotels-conf.
+
+In Title field select HotelName.
+
+Under Content fields, in Field name, select Description.
+
+Repeat the previous step for the following fields:
+
+Category
+Address/City
+Under Keyword fields, in Field name, select Tags.
+
+Select Save.
+
+On your index page, select Save.
+
+From the Azure portal home page, select All resources and select your search service.
+
+On the navigation bar, in Search management, select Indexes.
+
+Screenshot
+
+Select your index.
+
+Select Search explorer.
+
+Select View and select JSON view.
+
+In JSON query editor type the following text:
+
+    {
+        "queryType": "semantic",
+        "queryLanguage" : "en-us",
+        "search": "all hotels near the water" , 
+        "semanticConfiguration": "hotels-conf" , 
+        "searchFields": "",
+        "speller": "lexicon" , 
+        "answers": "extractive|count-3",
+        "count": true
+    }
+Select Search.
+
+Review the results of the query.
+
+ 07:22:067 hours and 22 minutes remaining on your lab session
+Keyboard released from VM
